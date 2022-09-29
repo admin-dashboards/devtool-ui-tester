@@ -1,0 +1,38 @@
+name: Compatibility Check
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+    CI: false
+
+jobs:
+  compatibility-check:
+    name: Compatibility Check
+    runs-on: ubuntu-20.04
+    continue-on-error: true
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create reports DIR
+        run: mkdir reports 
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}    
+      - name: Give permissions for script to run
+        run: |
+          sudo chmod +x report-test-build.sh
+      - name: Run script
+        run: ./report-test-build.sh
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          path: reports
+          name: reports
+        
